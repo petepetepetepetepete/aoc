@@ -3,6 +3,10 @@
 use strict;
 use warnings;
 
+use List::Util qw/sum/;
+
+print sum(map { fuel($_) } <>) . "\n";
+
 sub fuel {
     my $mass = shift;
 
@@ -12,10 +16,3 @@ sub fuel {
     return $fuel + fuel($fuel);
 }
 
-my $fuel = 0;
-while (my $mass = <>) {
-    chomp $mass;
-    $fuel += fuel($mass);
-}
-
-print $fuel . "\n";

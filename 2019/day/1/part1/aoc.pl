@@ -3,10 +3,6 @@
 use strict;
 use warnings;
 
-my $fuel = 0;
-while (my $mass = <>) {
-    chomp $mass;
-    $fuel += int($mass / 3) - 2;
-}
+use List::Util qw/sum/;
 
-print $fuel . "\n";
+print sum(map { int($_/3) - 2 } <>) . "\n";
