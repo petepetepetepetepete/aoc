@@ -1,4 +1,4 @@
 %:
-	for x in */day/*/part* ; do \
-		make -C $$x $@ ; \
+	@for x in */day/*/part* ; do \
+		$(MAKE) -C $$x $@ ; \
 	done
