@@ -81,7 +81,7 @@ for my $d (qw/in expected/) {
 
 my $test = 1;
 while (1) {
-    print "Enter input (EOF for done):\n";
+    print "Enter example input (EOF when no examples remain):\n";
     my $input = <STDIN>;
     last unless defined $input;
 
@@ -100,3 +100,12 @@ while (1) {
     $test++;
 }
 
+my $input_file = "$year/day/$day/input";
+exit 0 if -f $input_file;
+
+open $fh, ">$input_file" or die "Failed top open $input_file for write: $!";
+print "Enter actual input:\n";
+while (my $line = <STDIN>) {
+    print $fh $line;
+}
+close $fh;
