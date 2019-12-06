@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 
-use List::Util qw/min/;
-
 my %m;
 while (my $line = <STDIN>) {
     chomp $line;
@@ -12,14 +10,13 @@ while (my $line = <STDIN>) {
     $m{$b} = $a;
 }
 
-my @distances;
+my $dist = 999_999_999;
 for my $k (sort keys %m) {
     my $a = calculate_dist(\%m, $m{YOU}, $k, 0); next if $a < 0;
     my $b = calculate_dist(\%m, $m{SAN}, $k, 0); next if $b < 0;
-    push @distances, $a + $b;
+    $dist = $dist < $a + $b ? $dist : $a + $b;
 }
-
-print min(@distances) . "\n";
+print "$dist\n";
 
 sub calculate_dist {
     my ($m, $a, $b, $res) = @_;
