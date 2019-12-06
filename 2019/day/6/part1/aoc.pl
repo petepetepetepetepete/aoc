@@ -3,12 +3,7 @@
 use strict;
 use warnings;
 
-my %m;
-while (my $line = <STDIN>) {
-    chomp $line;
-    my ($a, $b) = split/\)/, $line;
-    $m{$b} = $a;
-}
+my %m = map { chomp; my ($a, $b) = split /\)/; $b => $a } <STDIN>;
 
 my $count = 0;
 for my $k (sort keys %m) {
