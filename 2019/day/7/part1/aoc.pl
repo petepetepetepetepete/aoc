@@ -137,6 +137,9 @@ sub run {
         my $res = $self->opcode();
         last if $res == -1;
     }
+
+    close $self->{in_fh} if defined $self->{in_fh};
+    close $self->{out_fh} if defined $self->{out_fh};
 }
 
 sub opcode {
