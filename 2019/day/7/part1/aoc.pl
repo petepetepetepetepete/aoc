@@ -166,6 +166,8 @@ my @seq = (0..4);
 Algorithm::Permute::permute {
     for my $i (0..5) {
         pipe(my $rh, my $wh) or die "Failed to pipe: $!";
+        $rh->autoflush(1);
+        $wh->autoflush(1);
         push @readers, $rh;
         push @writers, $wh;
     }
