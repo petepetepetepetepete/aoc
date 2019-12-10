@@ -91,8 +91,9 @@ sub new {
     chomp $prog;
     close $fh;
 
+    my $i = 0;
     return bless {
-        prog => [ split /,/, $prog ],
+        prog => { map { $i++ => $_ } split /,/, $prog },
         ip => 0,
         relative_base => 0,
     }, $class;
@@ -146,13 +147,13 @@ sub set_value {
     my ($self, $offset, $value) = @_;
 
     my $ip = $self->{ip};
-    my $opcode = $self->{prog}->[$ip];
+    my $opcode = $self->{prog}->{$ip};
     my $type = ($opcode / (10 ** ($offset + 1))) % 10;
     if ($type == 0) {
-        $self->{prog}->[$self->{prog}->[$ip+$offset]] = $value;
+        $self->{prog}->{$self->{prog}->{$ip+$offset}} = $value;
     }
     elsif ($type == 1) {
-        $self->{prog}->[$ip+$offset] = $value;
+        $self->{prog}->{$ip+$offset} = $value;
     }
     else {
         die "Invalid parameter type: $type";
@@ -162,13 +163,13 @@ sub set_value {
 sub get_value {
     my ($self, $offset) = @_;
     my $ip = $self->{ip};
-    my $opcode = $self->{prog}->[$ip];
+    my $opcode = $self->{prog}->{$ip};
     my $type = ($opcode / (10 ** ($offset + 1))) % 10;
     if ($type == 0) {
-        return $self->{prog}->[$self->{prog}->[$ip+$offset]] // 0;
+        return $self->{prog}->{$self->{prog}->{$ip+$offset}} // 0;
     }
     elsif ($type == 1) {
-        return $self->{prog}->[$ip+$offset] // 0;
+        return $self->{prog}->{$ip+$offset} // 0;
     }
     else {
         die "Invalid parameter type: $type";
@@ -192,12 +193,12 @@ sub opcode {
     my ($self) = @_;
 
     my $ip = $self->{ip};
-    my $opcode = $self->{prog}->[$ip] % 100;
+    my $opcode = $self->{prog}->{$ip} % 100;
     if (ref $opcodes{$opcode} eq 'CODE') {
         return $opcodes{$opcode}->($self);
     }
     else {
-        die "Unknown opcode: $opcode ($self->{prog}->[$ip]) at offset=$ip";
+        die "Unknown opcode: $opcode ($self->{prog}->{$ip}) at offset=$ip";
     }
 }
 
