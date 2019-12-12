@@ -232,12 +232,12 @@ $ic->set_write_cb(sub {
             $map{$y}{$x} = $value;
         }
         else {
-            $direction = ($direction + ($value ? -1 : 1)) % 4;
+            $direction = ($direction + ($value ? 1 : -1)) % 4;
             if ($direction % 2 == 0) {
-                $y += $direction > 0 ? 1 : -1;
+                $y += $direction == 0 ? -1 : 1;
             }
             else {
-                $x += $direction > 1 ? -1 : 1;
+                $x += $direction == 1 ? 1 : -1;
             }
         }
     });
