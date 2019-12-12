@@ -82,19 +82,19 @@ for my $d (qw/in expected/) {
 my $test = 1;
 while (1) {
     print "Enter example input (EOF when no examples remain):\n";
-    my $input = <STDIN>;
-    last unless defined $input;
+    my @input = <STDIN>;
+    last unless @input;
 
     open $fh, ">$dir/t/in/$test" or die "Failed to open $dir/t/in/$test for write: $!";
-    print $fh $input;
+    print $fh join('', @input);
     close $fh;
 
     print "Enter expected output:\n";
-    $input = <STDIN>;
-    die "Must provide expected output" unless defined $input;
+    @input = <STDIN>;
+    die "Must provide expected output" unless @input;
 
     open $fh, ">$dir/t/expected/$test" or die "Failed to open $dir/t/expected/$test for write: $!";
-    print $fh $input;
+    print $fh join('', @input);
     close $fh;
 
     $test++;
