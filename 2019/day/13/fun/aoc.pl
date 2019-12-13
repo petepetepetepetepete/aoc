@@ -227,7 +227,7 @@ my $cheat = shift;
 
 my $terminal = Tgetent Term::Cap;
 system('clear');
-ReadMode 4;
+ReadMode 4 unless $cheat;
 
 my %map;
 my $write_count = 0;
@@ -259,18 +259,43 @@ $ic->set_write_cb(sub {
         elsif ($i == 2) {
             if ($x == -1 && $y == 0) {
                 $score = $value;
+
+                print $terminal->Tgoto('cm', 0, $max_y + 2);
+                print "Score: $score                    \n";
             }
             else {
                 $map{$y}{$x} = $value;
                 if ($value == 3 || $value == 4) {
                     $pos{$value} = $x;
                 }
+
+                local $| = 1;
+                my @colors = (
+                    color('red'),
+                    color('green'),
+                    color('yellow'),
+                    color('blue'),
+                    color('magenta'),
+                    color('cyan'),
+                );
+                my %char_map = (
+                    0 => ' ',
+                    1 => '█',
+                    2 => '█',
+                    3 => '▔',
+                    4 => '0',
+                );
+                print $terminal->Tgoto('cm', $x, $y);
+                print $colors[$y % scalar(@colors)] if $value == 2;
+                print $char_map{$value};
+                print color('reset') if $value == 2;
+                print $terminal->Tgoto('cm', 1000, 1000);
             }
         }
     });
 
 $ic->set_read_cb(sub {
-        draw_map(\%map);
+        sleep 1/60;
         return $pos{4} <=> $pos{3} if $cheat;
         my $c = ReadKey(0);
         return -1 if $c eq 'a';
@@ -281,47 +306,10 @@ $ic->set_read_cb(sub {
 
 $ic->set_halt_cb(sub {
         print $terminal->Tgoto('cm', 0, $max_y + 2);
-        print "Score: $score\n";
-        ReadMode 0;
+        print "Score: $score                    \n";
+        ReadMode 0 unless $cheat;
     });
 
 $ic->run();
-
-$|++;
-sub draw_map {
-    my ($map) = @_;
-
-    my %char_map = (
-        0 => ' ',
-        1 => '█',
-        2 => '▄',
-        3 => '▔',
-        4 => 'o',
-    );
-    my @colors = (
-        color('red'),
-        color('green'),
-        color('yellow'),
-        color('blue'),
-        color('magenta'),
-        color('cyan'),
-    );
-    for my $y (0..$max_y) {
-        for my $x (0..$max_x) {
-            print $terminal->Tgoto('cm', $x, $y);
-            my $c = $map->{$y}{$x} // 0;
-            if ($c == 2) {
-                print $colors[$y % scalar(@colors)];
-            }
-            print $char_map{$c};
-            print color('reset');
-        }
-    }
-
-    print $terminal->Tgoto('cm', 0, $max_y + 2);
-    print "Score: $score\n";
-
-    sleep 0.03;
-}
 
 1;
