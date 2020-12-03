@@ -1,4 +1,3 @@
-%:
-	@for x in */day/*/part* ; do \
-		$(MAKE) -C $$x $@ ; \
-	done
+SUBDIRS := 2019 2020
+
+include Makefile.inc
