@@ -5,7 +5,7 @@ use File::Path qw/make_path/;
 my ($year, $day, $part) = @ARGV;
 die "Requires year, day, and part" unless $year && $day && $part;
 
-my $dir = "$year/day/$day/part$part";
+my $dir = "$year/$day/$part";
 die "Directory $dir already exists" if -d $dir;
 
 make_path $dir or die "Failed to make_path $dir: $!";
@@ -100,7 +100,7 @@ while (1) {
     $test++;
 }
 
-my $input_file = "$year/day/$day/input";
+my $input_file = "$year/$day/input";
 exit 0 if -f $input_file;
 
 open $fh, ">$input_file" or die "Failed top open $input_file for write: $!";
