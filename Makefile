@@ -1,4 +1,4 @@
 %:
-	@for x in */day/*/part* ; do \
+	@for x in 20*/*/[12] ; do \
 		$(MAKE) -C $$x $@ ; \
 	done
