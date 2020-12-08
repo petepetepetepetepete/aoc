@@ -3,15 +3,14 @@
 use strict;
 use warnings;
 
-use List::Util qw/max/;
-
-my @passes;
+my $max = -1;
 while (my $line = <>) {
     chomp $line;
-    push @passes, seat_id($line);
+    my $sid = seat_id($line);
+    $max = $sid if $sid > $max;
 }
 
-print max(@passes) . "\n";
+print $max . "\n";
 
 sub seat_id {
     my $pass = shift;
