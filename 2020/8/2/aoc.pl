@@ -74,22 +74,6 @@ sub run {
     return $self->{accumulator};
 }
 
-sub fixed_run {
-    my $self = shift;
-
-    my %h = ( 'jmp' => 'nop', 'nop' => 'jmp' );
-    for my $i (0..$#{$self->{prog}}) {
-        next unless exists $h{$self->{prog}[$i][0]};
-        $self->{prog}[$i][0] = $h{$self->{prog}[$i][0]};
-        my $res = eval { $self->run(); };
-        return $res if !$@ && defined $res;
-        $self->{prog}[$i][0] = $h{$self->{prog}[$i][0]};
-        $self->restart();
-    }
-
-    return;
-}
-
 1;
 
 use Storable 'dclone';
