@@ -16,41 +16,11 @@ print max(@passes) . "\n";
 sub seat_id {
     my $pass = shift;
 
-    my $min = 0;
-    my $max = 127;
+    my %map = ('F' => 0, 'B' => 1, 'L' => 0, 'R' => 1);
 
     my @c = split //, $pass;
-    for my $c (@c[0..6]) {
-        if ($c eq 'F') {
-            $max = $max - ($max - $min + 1) / 2;
-        }
-        elsif ($c eq 'B') {
-            $min = $min + ($max - $min + 1 ) / 2;
-        }
-        else {
-            die "Unexpected char: $c";
-        }
-    }
-    die if $min != $max;
+    my ($row) = map { oct("0b$_") } join '', map { $map{$_} } @c[0..6];
+    my ($col) = map { oct("0b$_") } join '', map { $map{$_} } @c[7..9];
 
-    my $row = $min;
-
-    $min = 0;
-    $max = 7;
-    for my $c (@c[7..9]) {
-        if ($c eq 'L') {
-            $max = $max - ($max - $min + 1) / 2;
-        }
-        elsif ($c eq 'R') {
-            $min = $min + ($max - $min + 1) / 2;
-        }
-        else {
-            die "Unexpected char: $c";
-        }
-    }
-    die if $min != $max;
-
-    my $column = $min;
-
-    return $row * 8 + $column;
+    return $row * 8 + $col;
 }
