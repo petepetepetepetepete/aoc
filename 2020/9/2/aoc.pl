@@ -14,13 +14,13 @@ for my $i ($preamble_length..$#numbers) {
     }
 }
 
+my $res;
 for my $i (0..$#numbers) {
-    my $res = solve($target, $i, \@numbers);
-    if ($res) {
-        print $res . "\n";
-        last;
-    }
+    $res = solve($target, $i, \@numbers);
+    last if defined $res;
 }
+
+print $res . "\n";
 
 sub solve {
     my ($target, $idx, $nums) = @_;
@@ -33,6 +33,7 @@ sub solve {
         $max = $nums->[$i] if $max > $nums->[$i];
         $sum += $nums->[$i];
         return $min + $max if $sum == $target;
+        last if $sum > $target;
     }
     return;
 }
