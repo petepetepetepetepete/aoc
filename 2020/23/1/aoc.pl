@@ -8,12 +8,15 @@ use List::Util qw/max/;
 my $line = <>;
 chomp $line;
 my @cups = map { { value => $_ } } split //, $line;
+my $max_cup = max(map { $_->{value} } @cups);
+
+my %cups;
 for my $i (reverse 0..$#cups) {
+    $cups{$cups[$i]->{value}} = $cups[$i];
     $cups[$i]->{prev} = $cups[$i-1];
     $cups[$i-1]->{next} = $cups[$i];
 }
 
-my $max_cup = max(map { $_->{value} } @cups);
 
 sub step {
     my ($cup, $step) = @_;
@@ -35,7 +38,7 @@ sub step {
 
     $pick_head->{prev} = $pick_tail->{next} = undef;
 
-    $node = find_dest($cup, $dest);
+    $node = find_dest($cup, $pick_head, $dest);
     #warn sprintf "destination: %d\n\n", $dest;
 
     $prev = $node;
@@ -51,17 +54,16 @@ sub step {
 }
 
 sub find_dest {
-    my ($cup, $dest) = @_;
+    my ($cup, $pick, $dest) = @_;
 
     $dest = $max_cup if $dest == 0;
 
-    my $node = $cup->{next};
-    while ($node != $cup) {
-        return $node if $node->{value} == $dest;
-        $node = $node->{next};
+    my $node = $pick;
+    if (grep { $_ == $dest } map { my $c = $node; $node = $node->{next}; $c->{value} } (1..3)) {
+        return find_dest($cup, $pick, $dest-1);
     }
 
-    return find_dest($cup, $dest-1);
+    return $cups{$dest};
 }
 
 my $node = $cups[0];
