@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 
+use List::Util qw/first/;
+
 my $res = 0;
 while (my $line = <>) {
     chomp $line;
@@ -14,88 +16,43 @@ print $res . "\n";
 sub output_value {
     my $line = shift;
 
-    my $res = '';
-
     my @a = split / \| /, $line;
     my @signal = split / /, $a[0];
     my @out = split / /, $a[1];
     my @digits = (@signal, @out);
 
-    my @segments = ('abcdefg') x 7;
+    my $one = first { length($_) == 2 } @digits;
+    my $seven = first { length($_) == 3 } @digits;
+    my $four = first { length($_) == 4 } @digits;
+    my $eight = first { length($_) == 7 } @digits;
 
-    my $one = (grep { length($_) == 2 } @digits)[0];
-    $segments[2] = $segments[5] = $one;
-
-    my $seven = (grep { length($_) == 3 } @digits)[0];
-    $seven =~ s/$_// foreach split //, $one;
-    $segments[0] = $seven;
-
-    my $four = (grep { length($_) == 4 } @digits)[0];
-    $four =~ s/$_// foreach split //, $one;
-    $segments[1] = $segments[3] = $four;
-
-    my $eight = (grep { length($_) == 7 } @digits)[0];
-    $eight =~ s/$_// foreach split //, $one;
-    $eight =~ s/$_// foreach split //, $seven;
-    $eight =~ s/$_// foreach split //, $four;
-    $segments[4] = $segments[6] = $eight;
-
-    for my $digit (@digits) {
-        my @x = split //, $segments[0] . $segments[2] . $segments[1];
-        if (length($digit) == 6) {
-            my $digit2 = $digit;
-            $digit2 =~ s/$_// foreach @x;
-            if (length($digit2) == 1) {
-                $segments[6] = $digit2;
-                $segments[4] =~ s/$digit2//;
-                last;
-            }
-        }
-    }
-
-    for my $digit (@digits) {
-        my @x = split //, $segments[0] . $segments[2] . $segments[4] . $segments[6];
-        if (length($digit) == 6) {
-            my $digit2 = $digit;
-            $digit2 =~ s/$_// foreach @x;
-            if (length($digit2) == 1) {
-                $segments[1] = $digit2;
-                $segments[3] =~ s/$digit2//;
-                last;
-            }
-        }
-    }
-
-    for my $digit (@digits) {
-        my @x = split //, $segments[0] . $segments[3] . $segments[4] . $segments[6];
-        if (length($digit) == 5) {
-            my $digit2 = $digit;
-            $digit2 =~ s/$_// foreach @x;
-            if (length($digit2) == 1) {
-                $segments[2] = $digit2;
-                $segments[5] =~ s/$digit2//;
-                last;
-            }
-        }
-    }
-
-    my %map = (
-        join('', sort(map { $segments[$_] } (0, 1, 2, 4, 5, 6))) => 0,
-        join('', sort(map { $segments[$_] } (2, 5))) => 1,
-        join('', sort(map { $segments[$_] } (0, 2, 3, 4, 6))) => 2,
-        join('', sort(map { $segments[$_] } (0, 2, 3, 5, 6))) => 3,
-        join('', sort(map { $segments[$_] } (1, 2, 3, 5))) => 4,
-        join('', sort(map { $segments[$_] } (0, 1, 3, 5, 6))) => 5,
-        join('', sort(map { $segments[$_] } (0, 1, 3, 4, 5, 6))) => 6,
-        join('', sort(map { $segments[$_] } (0, 2, 5))) => 7,
-        join('', sort(map { $segments[$_] } (0..6))) => 8,
-        join('', sort(map { $segments[$_] } (0, 1, 2, 3, 5, 6))) => 9,
-    );
-
+    my $res = '';
     for my $out (@out) {
-        my $s = join('', sort(split //, $out));
-        $res .= $map{$s};
+        if (length($out) == 2) { $res .= 1; }
+        elsif (length($out) == 3) { $res .= 7; }
+        elsif (length($out) == 4) { $res .= 4; }
+        elsif (length($out) == 7) { $res .= 8; }
+        elsif (length($out) == 5) { # 2, 3, 5
+            if (segment_overlap($out, $one) == 2) { $res .= 3; }
+            elsif (segment_overlap($out, $four) == 2) { $res .= 2; }
+            elsif (segment_overlap($out, $four) == 3) { $res .= 5; }
+            else { die $out; }
+        }
+        elsif (length($out) == 6) { # 0, 6, 9
+            if (segment_overlap($out, $one) == 1) { $res .= 6; }
+            elsif (segment_overlap($out, $four) == 4) { $res .= 9; }
+            elsif (segment_overlap($out, $four) == 3) { $res .= 0; }
+            else { die $out; }
+        }
+        else {
+            die "Unexpected length: $out";
+        }
     }
-
+    
     return int($res);
+}
+
+sub segment_overlap {
+    my ($a, $b) = @_;
+    return scalar(grep { $a =~ m/$_/; } split //, $b);
 }
