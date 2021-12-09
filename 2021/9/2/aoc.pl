@@ -19,16 +19,15 @@ sub basin {
 
     while (my $pt = shift @pts) {
         next if $map[$pt->[0]][$pt->[1]] >= 9;
-        my @compare = (
+        my @compare = grep {
+            my $pt2 = $_;
+            !grep { $_->[0] == $pt2->[0] && $_->[1] == $pt2->[1] } @res;
+        } (
             (map { [$_,$pt->[1]] } grep { $_ >= 0 && $_ <= $max_y } ($pt->[0]-1,$pt->[0]+1)),
             (map { [$pt->[0],$_] } grep { $_ >= 0 && $_ <= $max_x } ($pt->[1]-1,$pt->[1]+1)),
         );
-        for my $pt2 (@res) {
-            @compare = grep { !($_->[0] == $pt2->[0] && $_->[1] == $pt2->[1]) } @compare;
-        }
 
-        my @matches = grep { $map[$pt->[0]][$pt->[1]] <= $map[$_->[0]][$_->[1]] } @compare;
-        if (scalar(@matches) == scalar(@compare)) {
+        if (scalar(grep { $map[$pt->[0]][$pt->[1]] <= $map[$_->[0]][$_->[1]] } @compare) == scalar(@compare)) {
             push @pts, @compare;
             push @res, $pt unless grep { $pt->[0] == $_->[0] && $pt->[1] == $_->[1] } @res;
         }
