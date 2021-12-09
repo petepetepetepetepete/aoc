@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use List::Util qw/product/;
+use List::Util qw/all product/;
 
 my @map = map { chomp; [ split // ] } <>;
 my $max_y = $#map;
@@ -27,7 +27,7 @@ sub basin {
             (map { [$pt->[0],$_] } grep { $_ >= 0 && $_ <= $max_x } ($pt->[1]-1,$pt->[1]+1)),
         );
 
-        if (scalar(grep { $map[$pt->[0]][$pt->[1]] <= $map[$_->[0]][$_->[1]] } @compare) == scalar(@compare)) {
+        if (all { $map[$pt->[0]][$pt->[1]] <= $map[$_->[0]][$_->[1]] } @compare) {
             push @pts, @compare;
             push @res, $pt unless grep { $pt->[0] == $_->[0] && $pt->[1] == $_->[1] } @res;
         }
