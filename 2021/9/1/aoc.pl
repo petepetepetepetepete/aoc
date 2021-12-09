@@ -5,12 +5,7 @@ use warnings;
 
 use List::Util qw/sum/;
 
-my @map;
-while (my $line = <>) {
-    chomp $line;
-    push @map, [ split //, $line ];
-}
-
+my @map = map { chomp; [ split // ] } <>;
 my $max_y = $#map;
 my $max_x = $#{$map[0]};
 
