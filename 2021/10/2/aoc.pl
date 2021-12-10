@@ -7,7 +7,7 @@ use List::Util qw/sum/;
 
 my $n = 1;
 my %score = map { $_ => $n++ } qw/( [ { </;
-my %r = ( ')' => '(', ']' => '[', '}' => '{', '>' => '<' );
+my %r = qw/) ( ] [ } { > </;
 
 my @scores = sort { $a <=> $b } grep { defined } map { chomp; score(split //) } <>;
 print $scores[scalar(@scores)/2] . "\n";

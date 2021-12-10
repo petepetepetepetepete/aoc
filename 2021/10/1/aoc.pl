@@ -5,8 +5,8 @@ use warnings;
 
 use List::Util qw/sum/;
 
-my %score = ( ')' => 3, ']' => 57, '}' => 1197, '>' => 25137 );
-my %r = ( ')' => '(', ']' => '[', '}' => '{', '>' => '<' );
+my %score = qw/) 3 ] 57 } 1197 > 25137/;
+my %r = qw/) ( ] [ } { > </;
 
 print sum(map { chomp; score(split //) } <>) . "\n";
 
