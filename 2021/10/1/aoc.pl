@@ -11,10 +11,9 @@ my %r = ( ')' => '(', ']' => '[', '}' => '{', '>' => '<' );
 print sum(map { chomp; score(split //) } <>) . "\n";
 
 sub score {
-    my @a = @_;
-    for my $i (0..$#a) {
-        next if $a[$i] =~ m/[([{<]/;
-        return $a[$i-1] eq $r{$a[$i]} ? score(@a[0..$i-2,$i+1..$#a]) : $score{$a[$i]};
+    for my $i (0..$#_) {
+        next if $_[$i] =~ m/[([{<]/;
+        return $_[$i-1] eq $r{$_[$i]} ? score(@_[0..$i-2,$i+1..$#_]) : $score{$_[$i]};
     }
     return 0;
 }
