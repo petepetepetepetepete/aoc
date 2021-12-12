@@ -9,14 +9,11 @@ for my $pt (map { chomp; [ split /-/ ] } <>) {
     push @{$map{$pt->[1]}}, $pt->[0];
 }
 
-print find_path_count(\%map, 'start') . "\n";;
+print find_paths(\%map, 'start') . "\n";
 
-sub find_path_count {
-    my ($m, @p) = @_;
-
-    return 1 if $p[-1] eq 'end';
-
-    my $res = 0;
-    $res += find_path_count($m, @p, $_) foreach grep { my $n = $_; m/^[A-Z]+$/ || !grep { $_ eq $n } @p } @{$m->{$p[-1]}};
-    return $res;
+sub find_paths {
+    my ($m, $n, @p) = @_;
+    return [@p, $n] if $n eq 'end';
+    return unless $n =~ m/^[A-Z]+$/ || !grep { $n eq $_ } @p;
+    return map { find_paths($m, $_, @p, $n) } @{$m->{$n}};
 }

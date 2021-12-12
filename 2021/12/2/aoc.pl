@@ -11,22 +11,12 @@ for my $pt (map { chomp; [ split /-/ ] } <>) {
     push @{$map{$pt->[1]}}, $pt->[0];
 }
 
-print find_path_counts(\%map, 'start') . "\n";
+print find_paths(\%map, 'start') . "\n";
 
-sub find_path_counts {
-    my ($m, @p) = @_;
-
-    return 1 if $p[-1] eq 'end';
-
-    my $res = 0;
-    for my $n (sort @{$m->{$p[-1]}}) {
-        next if $n eq 'start';
-        if (lc($n) eq $n && grep { $_ eq $n } @p) {
-            my @lc = grep { lc($_) eq $_ } @p;
-            next if uniq(@lc) < scalar(@lc);
-        }
-        $res += find_path_counts($m, @p, $n)
-    }
-
-    return $res;
+sub find_paths {
+    my ($m, $n, @p) = @_;
+    return [@p, $n] if $n eq 'end';
+    return if @p && $n eq 'start';
+    return unless $n =~ m/^[A-Z]+$/ || !(grep { $n eq $_ } @p) || do { my @lc = grep { m/^[a-z]+$/ } @p; uniq(@lc) == scalar(@lc) };
+    return map { find_paths($m, $_, @p, $n) } @{$m->{$n}};
 }
