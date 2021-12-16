@@ -7,11 +7,11 @@ use bigint;
 
 use List::Util qw/sum/;
 
-my @c = map { chomp; map { split //, sprintf("%04b", hex($_)) } split // } <>;
+my @c = map { chomp; [ map { split //, sprintf("%04b", hex($_)) } split // ] } <>;
 
 my @pkt_func = map { \&operator } (0..7); $pkt_func[4] = \&literal;
 
-print packet(\@c) . "\n";
+print packet($c[0]) . "\n";
 
 sub parse_bits {
     my ($c, $bits) = @_;
