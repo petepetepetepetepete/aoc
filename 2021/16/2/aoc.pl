@@ -10,7 +10,7 @@ use List::Util qw/sum product min max/;
 my @c = map { chomp; [ map { split //, sprintf("%04b", hex($_)) } split // ] } <>;
 
 my @pkt_func = map { \&operator } (0..7); $pkt_func[4] = \&literal;
-my @op_func = (\&sum, \&product, \&min, \&max, undef, sub { $_[0] > $_[1] ? 1 : 0 }, sub { $_[0] < $_[1] ? 1 : 0 }, sub { $_[0] == $_[1] ? 1 : 0 });
+my @op_func = (\&sum, \&product, \&min, \&max, undef, sub { int($_[0] > $_[1]) }, sub { int($_[0] < $_[1]) }, sub { int($_[0] == $_[1]) });
 
 print packet($c[0]) . "\n";
 
