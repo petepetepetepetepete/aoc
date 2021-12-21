@@ -1,0 +1,111 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+package Game;
+
+sub new {
+    my ($class, $pos, $target, $dice) = @_;
+    my @board = (10, 1..9);
+    my @players;
+    for my $p (@$pos) {
+        push @players, Player->new($p, \@board, $target);
+    }
+
+    return bless { players => [ @players ], cur => 0, dice => $dice, rolls => 0 };
+}
+
+sub set_die {
+    my ($self, $v) = @_;
+    $self->{dice} = $v;
+}
+
+sub roll {
+    my $self = shift;
+    $self->{rolls}++;
+
+    my $res = $self->{players}[$self->{cur}]->roll($self->{dice});
+    return $self->{cur} if $res;
+
+    $self->{cur}++;
+    $self->{cur} %= scalar(@{$self->{players}});
+    return;
+}
+
+
+1;
+
+package Player;
+
+sub new {
+    my ($class, $pos, $board, $target) = @_;
+    return bless { pos => $pos, board => $board, score => 0, target => $target }, $class;
+}
+
+sub roll {
+    my ($self, $n) = @_;
+    $self->{pos} += $n;
+    $self->{pos} %= scalar(@{$self->{board}});
+    $self->{score} += $self->{board}->[$self->{pos}];
+    return 1 if $self->{score} >= $self->{target};
+    return;
+}
+
+1;
+
+use Storable qw/dclone/;
+
+my %x = (3 => 1, 4 => 3, 5 => 6, 6 => 7, 7 => 6, 8 => 3, 9 => 1);
+
+my @players = map { chomp; (split /: /)[-1] } <>;
+
+my $game = Game->new([@players], 21);
+my @res = game($game, 1);
+use Data::Dumper;
+print Dumper \@res;
+
+sub game {
+    my $g = shift;
+    my $depth = shift;
+
+    my @res = (0) x 2;
+    for my $k (sort keys %x) {
+        warn "$k" if $depth == 1;
+        my $g2 = dclone($g);
+        $g2->set_die($k);
+        my $i = $g2->roll();
+        if (defined $i) {
+            $res[$i] += $x{$k};
+        }
+        else {
+            my @a = game($g2, $depth + 1);
+            $res[$_] += $x{$k} * $a[$_] foreach (0..$#a);
+        }
+    }
+
+    return @res;
+}
+
+#my %res;
+#while (my $g = shift @games) {
+#    my $res = $g->roll();
+#    if (defined $res) {
+#        $res{$res}++;
+#        next;
+#    }
+#
+#    for my $k (keys %x) {
+#        for my $i (1..$x{$k}) {
+#            my $g2 = dclone($g);
+#            $g2->set_die($k);
+#            push @games, $g2;
+#        }
+#    }
+#
+#    warn scalar(@games);
+#}
+#
+#use Data::Dumper;
+#print Dumper \%res;
+#
