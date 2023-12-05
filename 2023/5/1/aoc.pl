@@ -28,12 +28,12 @@ while (my $line = <>) {
 
 my @loc;
 for my $seed (@seeds) {
-    push @loc, foo($seed, 'seed', 'location');
+    push @loc, solve($seed, 'seed', 'location');
 }
 
 print min(@loc) . "\n";
 
-sub foo {
+sub solve {
     my ($id, $src, $final_dst) = @_;
 
     if ($src eq $final_dst) {
@@ -44,15 +44,12 @@ sub foo {
     use Data::Dumper;
     die Dumper \@dst unless @dst == 1;
 
-    #warn "$id, $src, $dst[0]";
-
     for my $entry (@{$map{$src}{$dst[0]}}) {
         if ($id >= $entry->[1] && $id < $entry->[1] + $entry->[2]) {
             my $new_id = $id + ($entry->[0] - $entry->[1]);
-            #warn $new_id;
-            return foo($new_id, $dst[0], $final_dst);
+            return solve($new_id, $dst[0], $final_dst);
         }
     }
 
-    return foo($id, $dst[0], $final_dst);
+    return solve($id, $dst[0], $final_dst);
 }

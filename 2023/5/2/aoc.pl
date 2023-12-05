@@ -34,9 +34,9 @@ while (my $line = <>) {
     }
 }
 
-print foo($seed_set, 'seed', 'location') . "\n";
+print solve($seed_set, 'seed', 'location') . "\n";
 
-sub foo {
+sub solve {
     my ($set, $src, $final_dst) = @_;
 
     if ($src eq $final_dst) {
@@ -46,8 +46,6 @@ sub foo {
     my @dst = keys %{$map{$src}};
     use Data::Dumper;
     die Dumper \@dst unless @dst == 1;
-    #warn "$src->$dst[0]";
-    #warn $set;
 
     my $new_set = Set::IntSpan->new;
     my $diffset = Set::IntSpan->new;
@@ -64,64 +62,7 @@ sub foo {
         }
     }
     $new_set += $set - $diffset;
-    #warn $new_set;
 
-    return foo($new_set, $dst[0], $final_dst);
+    return solve($new_set, $dst[0], $final_dst);
 }
 
-#my @loc;
-#for my $seed (@seeds) {
-#    push @loc, foo($seed->[0], $seed->[0] + $seed->[1] - 1, 'seed', 'location');
-#}
-#
-#use Data::Dumper;
-#warn Dumper \@loc;
-#
-#print min(map { $_->[0] } @loc) . "\n";
-#
-#sub foo {
-#    my ($start_id, $end_id, $src, $final_dst) = @_;
-#
-#    if ($src eq $final_dst) {
-#        return [ $start_id, $end_id ];
-#    }
-#
-#    my @dst = keys %{$map{$src}};
-#    use Data::Dumper;
-#    die Dumper \@dst unless @dst == 1;
-#
-#    my $len = $end_id - $start_id + 1;
-#    #warn "$start_id, $end_id($len), $src, $dst[0], $final_dst";
-#    
-#    my @res;
-#    for my $entry (@{$map{$src}{$dst[0]}}) {
-#        next if $start_id >= $entry->[1] + $entry->[2];
-#        next if $end_id < $entry->[1];
-#
-#        my $start_diff = $start_id - $entry->[1];
-#        my $end_diff = $entry->[1] + $entry->[2] - $end_id - 1;
-#
-#        $start_diff = 0 if $start_diff < 0;
-#        $end_diff = 0 if $end_diff < 0;
-#
-#        if ($start_id < $entry->[1]) {
-#            push @res, foo($start_id, $entry->[0] -1, $dst[0], $final_dst);
-#        }
-#
-#        push @res, foo($entry->[0] + $start_diff, $entry->[0] + $entry->[2] - $end_diff - 1, $dst[0], $final_dst);
-#
-#        if ($end_id >= $entry->[1] + $entry->[2]) {
-#            push @res, foo($entry->[1] + $entry->[2], $end_id, $dst[0], $final_dst);
-#        }
-#
-#        #if ($id >= $entry->[1] && $id < $entry->[1] + $entry->[2]) {
-#        #    my $new_id = $id + ($entry->[0] - $entry->[1]);
-#        #    #warn $new_id;
-#        #    return foo($new_id, $dst[0], $final_dst);
-#        #}
-#    }
-#
-#    push @res, foo($start_id, $end_id, $dst[0], $final_dst) unless @res;
-#
-#    return @res;
-#}
