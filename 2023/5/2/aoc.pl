@@ -18,7 +18,6 @@ while (my $line = <>) {
     next if $line eq '';
     if ($line =~ m/^seeds: ([0-9 ]+)$/) {
         for my $s (pairs(split / +/, $1)) {
-            use Data::Dumper;
             $seed_set += Set::IntSpan->new(sprintf("%d-%d", $s->[0], $s->[0]+$s->[1]-1));
         }
     }
