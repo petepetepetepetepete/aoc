@@ -11,12 +11,15 @@ die "Directory $dir already exists" if -d $dir;
 make_path $dir or die "Failed to make_path $dir: $!";
 
 open my $fh, ">$dir/Makefile" or die "Failed to open $dir/Makefile for write: $!";
-print $fh <<'EOF';
-solve:
-	@perl aoc.pl < ../input
+print $fh <<EOF;
+solve: ../input
+	\@perl aoc.pl < \$<
 
 test:
-	@prove -mvw t/examples.t
+	\@prove -mvw t/examples.t
+
+../input: ../../../.cookie
+	curl -H"\$\$(cat \$<)" -o \$\@ https://adventofcode.com/$year/day/$day/input
 EOF
 close $fh;
 
@@ -100,12 +103,3 @@ while (1) {
     $test++;
 }
 
-my $input_file = "$year/$day/input";
-exit 0 if -f $input_file;
-
-open $fh, ">$input_file" or die "Failed top open $input_file for write: $!";
-print "Enter actual input:\n";
-while (my $line = <STDIN>) {
-    print $fh $line;
-}
-close $fh;
