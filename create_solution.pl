@@ -103,3 +103,11 @@ while (1) {
     $test++;
 }
 
+my $readme = "$dir/../README.md";
+exit 0 if -f $readme;
+
+open my $fh, ">$readme" or die "Failed to open $readme for write: $!";
+print $fh <<EOF;
+[$year day $day puzzle](https://adventofcode.com/$year/day/$day)
+EOF
+close $fh;
