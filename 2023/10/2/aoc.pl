@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 
-use Time::HiRes qw/sleep/;
-
 my @dir = (
     # dx, dy, re next, re current
     [ -1, 0, '^[SLF-]$', '^[SJ7-]$' ],
