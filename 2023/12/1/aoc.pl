@@ -26,10 +26,22 @@ sub solve {
     my @q = grep { $_ eq '?' } @$r1;
     my $x = 2**@q;
 
+    my $count = sum(@$r2) - grep { $_ eq '#' } @$r1;
+
     my $result = 0;
     for my $i (0..$x-1) {
         my @r = @$r1;
         my $mask = $i;
+
+        my $count2 = $count;
+        while ($mask) {
+            $count2-- if $mask & 1;
+            $mask >>= 1;
+        }
+
+        next unless $count2 == 0;
+
+        $mask = $i;
 
         for my $j (reverse 0..$#r) {
             next unless $r[$j] eq '?';
