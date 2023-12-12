@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 
-use List::Util qw/all/;
+use Algorithm::Combinatorics qw/combinations/;
+use List::Util qw/all sum/;
 
 my @g = map { chomp; [ split //, $_ ] } <>;
 
@@ -28,11 +29,10 @@ $max_x = $#{$g[0]};
 my @pts = grep { my ($x,$y)=@$_; $g[$y][$x] eq '#' } map { my $y=$_; map { [ $_, $y ] } (0..$max_x) } (0..$max_y);
 
 my $result = 0;
-for my $i (0..$#pts) {
-    for my $j ($i+1..$#pts) {
-        $result += abs($pts[$j][0]-$pts[$i][0]);
-        $result += abs($pts[$j][1]-$pts[$i][1]);
-    }
+my $iter = combinations(\@pts, 2);
+while (my $c = $iter->next) {
+    my ($a, $b) = @$c;
+    $result += sum(map { abs($a->[$_] - $b->[$_]) } (0..1));
 }
 
 print $result . "\n";
