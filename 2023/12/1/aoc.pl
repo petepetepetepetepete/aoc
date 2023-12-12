@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use List::Util qw/any sum/;
+use List::Util qw/sum/;
 use MCE::Map;
 
 my @c = ('.', '#');
@@ -17,7 +17,7 @@ while (my $line = <>) {
 print sum(
     mce_map {
         my ($r1, $r2) = @$_;
-        (any { $_ eq '?' } @$r1) ? solve($r1, $r2) : 1
+        solve($r1, $r2)
     } \@records
 ). "\n";
 
@@ -25,6 +25,8 @@ sub solve {
     my ($r1, $r2) = @_;
 
     my @q = grep { $_ eq '?' } @$r1;
+    return 1 unless @q;
+
     my $x = 2**@q;
 
     my $count = sum(@$r2) - grep { $_ eq '#' } @$r1;
@@ -34,15 +36,7 @@ sub solve {
         my @r = @$r1;
         my $mask = $i;
 
-        my $count2 = $count;
-        while ($mask) {
-            $count2-- if $mask & 1;
-            $mask >>= 1;
-        }
-
-        next unless $count2 == 0;
-
-        $mask = $i;
+        next unless $count == unpack("%b*", pack("V", $i));
 
         for my $j (reverse 0..$#r) {
             next unless $r[$j] eq '?';
