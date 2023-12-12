@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use List::Util qw/any sum/;
+use MCE::Map;
 
 my @c = ('.', '#');
 my @records;
@@ -14,10 +15,10 @@ while (my $line = <>) {
 }
 
 print sum(
-    map {
+    mce_map {
         my ($r1, $r2) = @$_;
         (any { $_ eq '?' } @$r1) ? solve($r1, $r2) : 1
-    } (@records)
+    } \@records
 ). "\n";
 
 sub solve {
