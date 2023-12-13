@@ -6,49 +6,49 @@ use warnings;
 use List::Util qw/sum/;
 use MCE::Map;
 
-my @c = ('.', '#');
 my @records;
 while (my $line = <>) {
     chomp $line;
     my ($r1, $r2) = split / /, $line;
-    push @records, [ [ split //, $r1 ], [ split /,/, $r2 ] ];
+    push @records, [ $r1, [ split /,/, $r2 ] ];
 }
 
 print sum(
     mce_map {
         my ($r1, $r2) = @$_;
-        solve($r1, $r2)
+        valid($r1, '', @$r2)
     } \@records
 ). "\n";
 
-sub solve {
-    my ($r1, $r2) = @_;
+sub valid {
+    my ($s, $t, @sizes) = @_;
 
-    my @q = grep { $_ eq '?' } @$r1;
-    return 1 unless @q;
+    if (!@sizes) {
+        if ($s =~ m/#/) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
 
-    my $x = 2**@q;
-
-    my $count = sum(@$r2) - grep { $_ eq '#' } @$r1;
+    $s =~ s/^\.*//;
 
     my $result = 0;
-    for my $i (0..$x-1) {
-        my @r = @$r1;
-        my $mask = $i;
+    my $size = shift @sizes;
+    my $len = length($s);
 
-        next unless $count == unpack("%b*", pack("V", $i));
+    for my $i (0..$len) {
+        my $s2 = $s;
 
-        for my $j (reverse 0..$#r) {
-            next unless $r[$j] eq '?';
-
-            $r[$j] = $c[$mask & 0x1];
-            $mask >>= 1;
+        if ($s2 !~ s/^[?.]{$i}//) {
+            last;
         }
 
-        my @blocks = map { length($_) } grep { $_ ne '' } split /\.+/, join('', @r);
-        $result++ if @blocks == @$r2 && join(',', @blocks) eq join(',', @$r2);
+        if ($s2 =~ s/^[#?]{$size}(?:[.?]|$)//) {
+            $result += valid($s2, "$t\t", @sizes);
+        }
     }
 
     return $result;
 }
-
