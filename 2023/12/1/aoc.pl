@@ -4,7 +4,9 @@ use strict;
 use warnings;
 
 use List::Util qw/sum/;
-use MCE::Map;
+use Memoize;
+
+memoize('valid');
 
 my @records;
 while (my $line = <>) {
@@ -14,14 +16,14 @@ while (my $line = <>) {
 }
 
 print sum(
-    mce_map {
+    map {
         my ($r1, $r2) = @$_;
-        valid($r1, '', @$r2)
-    } \@records
+        valid($r1, @$r2)
+    } @records
 ). "\n";
 
 sub valid {
-    my ($s, $t, @sizes) = @_;
+    my ($s, @sizes) = @_;
 
     if (!@sizes) {
         if ($s =~ m/#/) {
@@ -46,7 +48,7 @@ sub valid {
         }
 
         if ($s2 =~ s/^[#?]{$size}(?:[.?]|$)//) {
-            $result += valid($s2, "$t\t", @sizes);
+            $result += valid($s2, @sizes);
         }
     }
 
