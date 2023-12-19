@@ -41,6 +41,9 @@ sub distance {
 
 1;
 
+use List::Util qw/min/;
+use Tie::Array::Sorted;
+
 my %opp = (
     '>' => '<',
     '<' => '>',
@@ -52,6 +55,12 @@ my %dir = (
     '<' => [-1,0],
     '^' => [0,-1],
     'v' => [0,1],
+);
+my %lr = (
+    '>' => [qw/^ v/],
+    '<' => [qw/^ v/],
+    '^' => [qw/< >/],
+    'v' => [qw/< >/],
 );
 
 my @m = map { chomp; [ split //, $_ ] } <>;
@@ -77,16 +86,14 @@ my $target = $node_map[$max_y][$max_x];
 # x,y,dir,dircount
 my %seen;
 
-# [ node, cost, last 3 dir ]
-my @q = [ $start, 0, [] ];
+my $min_cost = ~0;
+
+# [ node, cost, directions ]
+my @q;
+tie @q, 'Tie::Array::Sorted', sub { $_[0]->[1] <=> $_[1]->[1] };
+push @q, [ $start, 0, [] ];
 while (@q) {
     my ($node, $cost, $dirs) = @{shift @q};
-
-    # we've reached our goal
-    if ($node == $target) {
-        print $cost . "\n";
-        last;
-    }
 
     # count how many times we've move in the same direction
     my $dir_count = 0;
@@ -94,26 +101,47 @@ while (@q) {
     my $dir = $dirs->[$i] // '';
     $dir_count++ while defined $dirs->[$i] && $dir eq $dirs->[$i--];
 
+    # we've reached our goal
+    if ($node == $target) {
+        if ($dir_count >= 4) {
+            $min_cost = min($cost, $min_cost);
+            warn "$cost $min_cost / " . scalar(@q);
+        }
+        next;
+    }
+
     my $k = join(',', $node->x, $node->y, $dir, $dir_count);
 
     # skip if we've come to this node the same way before
-    next if $seen{$k};
+    next if defined $seen{$k} && $seen{$k} <= $cost;
 
-    $seen{$k}++;
+    $seen{$k} = $cost;
 
-    while (my ($ndir, $neighbour) = each %{$node->neighbours()}) {
-        # skip if we haven't moved in the same director at least 4 times
-        next if $dir ne '' && $dir ne $ndir && $dir_count < 4;
+    my @dirs;
 
-        # skip if this next step would cause us to go too far in the same direction
-        next if $dir eq $ndir && $dir_count == 10;
-
-        # skip if this next step would cause us to backtrack
-        next if $opp{$ndir} eq $dir;
-
-        push @q, [ $neighbour, $cost + $neighbour->heatloss, [ @$dirs, $ndir ] ];
+    if ($dir eq '') {
+        # initial state
+        @dirs = keys %dir;
+    }
+    elsif ($dir_count < 4) {
+        # we must keep moving in the same direction
+        @dirs = $dir;
+    }
+    else {
+        if ($dir_count < 10) {
+            # we may continue moving in the same direction
+            push @dirs, $dir;
+        }
+        # we can turn left or right
+        push @dirs, @{$lr{$dir}};
     }
 
-    # sort by cost
-    @q = sort { $a->[1] <=> $b->[1] } @q;
+    my $neighbours = $node->neighbours;
+    for my $ndir (@dirs) {
+        my $neighbour = $neighbours->{$ndir};
+        next unless $neighbour;
+        push @q, [ $neighbour, $cost + $neighbour->heatloss, [ @$dirs, $ndir ] ];
+    }
 }
+
+print $min_cost . "\n";
