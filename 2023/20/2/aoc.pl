@@ -94,7 +94,7 @@ while (my $line = <>) {
             if ($name =~ m/^pl|mz|lz|zm$/ && $newpulse == 0) {
                 push @{$rx_inputs{$name}}, $btnpushes;
 
-                if (all { scalar(@$_) > 2 } values %rx_inputs) {
+                if (all { scalar(@$_) >= 2 } values %rx_inputs) {
                     print lcm(map { $_->[1] - $_->[0] } values %rx_inputs) . "\n";
                     exit 0;
                 }
